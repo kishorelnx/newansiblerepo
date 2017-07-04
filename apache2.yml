@@ -1,0 +1,41 @@
+---
+- hosts: "{{ s }}"
+  vars:
+   - service_name: apache2
+  vars_files:
+   - var.yml
+  tasks:
+   - include: setup.yml
+
+   - name: Restarting the apache2 service.
+     service: name={{ service_name }} state=running enabled=yes
+     become: sudo
+   - name: Show how debug works
+     debug: msg={{ ansible_distribution }}
+     become: sudo
+   - name: Listing the files on /
+     command: ls
+     become: sudo
+   - name: Install vim
+     raw: ls 
+     become: sudo
+   - name: Script
+     script: sh.sh
+     become: sudo
+   - name: shell on /etc
+     shell: /bin/ls /etc 
+     become_user: sudo
+   - name: Ensure httpd conf has right permissions and owner/group
+     file: path=/etc/apache2/apache2.conf owner=root group=root mode=0644 
+     become: sudo
+   - name: Creating Link
+     file: src="/etc/apache2/apache2.conf" dest=/tmp/apache2.conf owner=root group=root mode=0644 state=link
+     become: sudo
+   - name: Create a test template
+     template: src=test dest=/tmp/testfile mode=644
+     become: sudo
+   - name: Copy file remotely
+     copy: src="sh.sh" dest="/tmp/sample"
+   - name: Checkout git repo via ssh
+     git: repo=https://github.com/ansible/ansible-examples.git dest=/tmp/node_nagios accept_hostkey=yes
+     become: sudo
